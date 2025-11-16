@@ -23,7 +23,10 @@ class UserCrudController extends AbstractCrudController
 
     public function __construct(private RequestStack $requestStack)
     {
-        $this->session = $this->requestStack->getSession();
+        if ($this->requestStack->getCurrentRequest() != null && $this->requestStack->getCurrentRequest()->getSession() !== null) {
+
+            $this->session = $this->requestStack->getSession();
+        }
     }
 
     public function index(AdminContext $context)
