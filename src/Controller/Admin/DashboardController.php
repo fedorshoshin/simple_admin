@@ -23,7 +23,7 @@ class DashboardController extends AbstractDashboardController
 
     public function configureDashboard(): Dashboard
     {
-        return Dashboard::new()->disableDarkMode()->setTitle('Simple Admingo');
+        return Dashboard::new()->disableDarkMode()->setTitle('Simple Admin');
     }
 
     public function configureMenuItems(): iterable

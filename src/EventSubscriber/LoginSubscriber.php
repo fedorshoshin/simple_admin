@@ -33,7 +33,7 @@ class LoginSubscriber implements EventSubscriberInterface
 
         if ($user instanceof UserInterface) {
 
-            $user->setLastLoginAt(new \DateTimeImmutable());
+            $user->setLastLoginAt(new \DateTime());
             $this->session->set('is_logged_in', true);
             $this->entityManager->persist($user);
             $this->entityManager->flush();
