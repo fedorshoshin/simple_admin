@@ -2,7 +2,6 @@ services:
   php:
     build:
       context: .
-      target: app
     volumes:
       - .:/var/www/html
     environment:

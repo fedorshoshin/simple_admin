@@ -1,42 +1,50 @@
-# PHP base stage
-FROM php:8.3-fpm-alpine AS app_base
+# Use official PHP 8.3 FPM image
+FROM php:8.3-fpm-alpine3.21
 
-# Set environment to development
-ENV APP_ENV=dev
+# Set working directory
+WORKDIR /var/www/html
 
-# Install system dependencies and PHP extensions
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
+    && apk update
+
 RUN apk add --no-cache \
     $PHPIZE_DEPS \
+    bash \
+    git \
+    unzip \
+    curl \
     icu-dev \
     libzip-dev \
     zlib-dev \
-    postgresql-dev
-
-RUN docker-php-ext-install \
-    intl \
-    zip \
-    pdo pdo_pgsql
+    oniguruma-dev \
+    postgresql-dev \
+    autoconf \
+    g++ \
+    make \
+    pkgconf \
+    re2c \
+    libcurl \
+    bzip2-dev \
+    xz-dev \
+    zstd-dev \
+    openssl-dev  \
+    && pecl install pecl_http \
+    && docker-php-ext-enable http
 
 # Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www/html
-
-# PHP application stage
-FROM app_base AS app
-
-# Install dependencies
-COPY composer.json composer.lock symfony.lock ./
-RUN composer install --prefer-dist --no-scripts --no-progress --ignore-platform-req=ext-http
-
-# Copy the rest of the application
+# Copy application code
 COPY . .
 
-# Run composer scripts to prepare the app
-RUN composer auto-scripts
+# Install PHP dependencies
+RUN composer install --no-interaction --optimize-autoloader --no-dev
 
-# Nginx stage
-FROM nginx:1.25-alpine AS nginx
+# Set permissions for Symfony
+RUN chown -R www-data:www-data var cache vendor
 
-# Copy nginx configuration
-COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+# Expose port (optional, usually handled by docker-compose)
+EXPOSE 9000
+
+# Start PHP-FPM
+CMD ["php-fpm"]
