@@ -14,9 +14,9 @@ services:
   nginx:
     build:
       context: .
-      target: nginx
     volumes:
-      - ./public:/var/www/html/public
+        - .:/var/www
+        - ./docker/nginx/conf.d:/etc/nginx/conf.d
     ports:
       - "8080:80"
     depends_on:
